@@ -1,23 +1,30 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { NavigationContainer } from '@react-navigation/native';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { StatusBar } from 'expo-status-bar';
-import { RoomListScreen } from './src/screens/RoomListScreen';
+import React from 'react';
+import { StyleSheet } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { RootNavigator } from './src/navigation/RootNavigator';
+import { queryClient } from './src/services/queryClient';
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <View style={styles.root}>
-        <StatusBar style="light" />
-        <RoomListScreen />
-      </View>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={styles.root}>
+      <SafeAreaProvider>
+        <QueryClientProvider client={queryClient}>
+          <NavigationContainer>
+            <StatusBar style="light" />
+            <RootNavigator />
+          </NavigationContainer>
+        </QueryClientProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#1E3A5F',
   },
 });

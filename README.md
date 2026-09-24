@@ -1,82 +1,92 @@
-# 🏫 RoomBooking - Ứng Dụng Đặt Phòng Học Trực Tuyến
+# 🏫 RoomBooking - Ứng Dụng Đặt Phòng Học & Lab Thời Gian Thực (VKU)
 
-Ứng dụng di động **RoomBooking** được xây dựng trên nền tảng **React Native** kết hợp **Expo (SDK 57)** và **TypeScript (Strict Mode)**, hỗ trợ sinh viên và giảng viên dễ dàng tra cứu, lọc và đăng ký phòng học/phòng thí nghiệm theo khung giờ thực tế với cơ chế chống trùng lặp lịch thông minh.
+> **Mini-Project 2 - Full Implementation**  
+> Môn học: Lập trình Đa nền tảng (Cross-Platform Mobile Development)  
+> Khoa Kỹ thuật Máy tính - Trường Đại học Công nghệ Thông tin & Truyền thông Việt - Hàn (VKU)
+
+Ứng dụng di động **RoomBooking** được xây dựng trên nền tảng **React Native & Expo (SDK 57)** với kiến trúc **New Architecture (Hermes, Fabric, JSI)**, kết hợp điều hướng phân cấp định kiểu **React Navigation 7**, quản lý Client State bằng **Zustand + AsyncStorage**, quản lý Server Cache với **TanStack React Query**, cùng hiệu ứng chuyển động mượt mà bằng **Reanimated 3** và cử chỉ vuốt bằng **Gesture Handler**.
 
 ---
 
 ## 🌟 Tính Năng Nổi Bật
 
-1. **Tìm Kiếm Phòng Học Thời Gian Thực**:
-   - Thanh tìm kiếm nhanh hỗ trợ gõ tên phòng (ví dụ: *AI, Lab, Studio, 302...*) hoặc tên tòa nhà (*Tòa A3, Tòa K, Thư viện...*).
-   - Nút xoá nhanh (✕) tiện lợi.
+1. **Kiến trúc Điều Hướng Định Kiểu (Navigation Nesting Type-Safe)**:
+   - Hệ thống lồng ghép `Stack.Navigator` chứa `BottomTabs` (3 Tabs: *Duyệt Phòng*, *Lịch Đặt*, *Hồ Sơ*).
+   - Màn hình `RoomDetails` tự động ẩn thanh Tab Bar dưới đáy khi chuyển trang.
+   - Màn hình `BookingConfirmation` thiết kế dạng Modal trượt từ đáy màn hình.
 
-2. **Thẻ Lọc Đa Tiêu Chí (Multi-parameter Filter Chips)**:
-   - **Lọc theo trạng thái phòng**: *Tất cả*, *🟢 Còn trống*, *🔴 Đang bận*.
-   - **Lọc theo khu vực & tòa nhà**: *Tất cả tòa*, *Tòa nhà A3*, *Tòa nhà K*, *Tòa nhà V*, *Thư Viện*, *Trung Tâm ĐMST*, *Khu Hành Chính*.
-   - Hiển thị số lượng phòng khớp với tiêu chí lọc theo thời gian thực.
+2. **Duyệt Phòng & Tối Ưu Hóa Hiệu Năng 60fps**:
+   - Bộ dữ liệu mẫu gồm **22 phòng học & phòng lab hiện đại** kèm ảnh sắc nét, mô tả và danh sách trang thiết bị tiện ích.
+   - Danh sách `FlatList` cấu hình tối ưu tuyệt đối: `initialNumToRender={10}`, `maxToRenderPerBatch={5}`, `windowSize={5}`.
+   - Tích hợp tính năng kéo xuống để làm mới (Pull-to-refresh) trực tiếp với `useRooms` từ TanStack Query.
+   - Thanh tìm kiếm thời gian thực theo tên phòng và dải thẻ lọc danh mục (Filter Chips) theo tòa nhà.
 
-3. **Bảng Cấp Dữ Liệu Phòng Chuẩn 60fps (FlatList Optimization)**:
-   - Dữ liệu giả lập thực tế gồm **22 phòng học & lab nghiên cứu** hiện đại.
-   - Tối ưu hóa hiệu năng render mượt mà với `initialNumToRender`, `maxToRenderPerBatch`, `windowSize`, và `keyExtractor`.
-   - Hình ảnh tải chất lượng cao với kích thước cố định, chống giật layout (layout shift).
+3. **Hiệu Ứng Hoạt Họa Mượt Mà trên UI Thread (Reanimated 3 Worklets)**:
+   - Thẻ phòng `RoomCard` hiển thị hiệu ứng so le mượt mà: `entering={FadeInDown.delay(index * 80).springify()}`.
+   - Nút bấm *"Book This Room"* phản hồi cử chỉ bấm co giãn đàn hồi tự nhiên: `onPressIn` co về `0.95`, `onPressOut` bung về `1.0`.
 
-4. **Bộ Chọn Khung Giờ & Ngăn Chặn Đặt Trùng Lặp (Conflict Prevention)**:
-   - Cung cấp 6 ca học tiêu chuẩn trong ngày:
-     - Ca 1: `07:00 - 09:00`
-     - Ca 2: `09:15 - 11:15`
-     - Ca 3: `13:00 - 15:00`
-     - Ca 4: `15:15 - 17:15`
-     - Ca 5: `17:30 - 19:30`
-     - Ca 6: `19:30 - 21:30`
-   - **Cơ chế chống trùng lặp**: Các ca đã có lịch trước sẽ tự động bị khóa (`disabled`), chuyển màu xám mờ và hiển thị nhãn cảnh báo `🔒 Trùng lịch` kèm tên người/lớp đã đặt.
-   - Người dùng chỉ chọn được ca còn trống và tiến hành xác nhận đặt phòng.
-   - Sau khi đặt thành công, ca học sẽ ngay lập tức được khóa lại để chống trùng lặp tuyệt đối.
+4. **Bộ Chọn Khung Giờ & Thuật Toán Chống Trùng Lặp (Conflict Prevention)**:
+   - Các khung giờ mẫu trong ngày: `08:00 - 10:00`, `10:00 - 12:00`, `13:00 - 15:00`, `15:00 - 17:00`.
+   - Thuật toán tự động đối chiếu các đơn đặt phòng có trạng thái `confirmed` trong Zustand: Nếu khung giờ đã có người đặt, hệ thống lập tức vô hiệu hóa (`disabled`), gạch ngang thời gian và hiển thị nhãn `🔒 Đã đặt`.
 
-5. **Khung Thông Báo & Cửa Sổ Tùy Chỉnh (Custom Modals)**:
-   - **Hoàn toàn không dùng `Alert.alert` mặc định của hệ điều hành**.
-   - Thiết kế đồng bộ phong cách với tone màu chủ đạo `#1E3A5F`, viền bo tròn mềm mại, bóng đổ cao cấp và hiệu ứng chuyển động mượt.
+5. **Lưu Trữ Bền Vững Client State (Zustand + AsyncStorage)**:
+   - Sử dụng middleware `persist` với storage key `'vku-booking-storage'`. Toàn bộ dữ liệu đơn đặt phòng được bảo toàn liên tục qua các lần tắt/mở lại ứng dụng.
+   - Cung cấp selector pattern để hạn chế tối đa các lượt re-render thừa.
 
-6. **Chuẩn Quy Chuẩn Giao Diện & Styling**:
-   - Sử dụng **100% `StyleSheet.create()`**, không dùng inline styles để giảm áp lực thu gom rác (GC pressure).
-   - Tuyệt đối không dùng các thẻ HTML DOM, chỉ dùng các component native của React Native.
-   - Tương thích hoàn hảo với tai thỏ, nốt ruồi và Dynamic Island thông qua `react-native-safe-area-context`.
+6. **Cử Chỉ Vuốt Để Hủy Đơn Đặt (Swipe-to-Cancel Pan Gesture)**:
+   - Tích hợp `react-native-gesture-handler` (`Gesture.Pan()`).
+   - Người dùng vuốt thẻ đặt phòng sang trái vượt ngưỡng `-120px` để kích hoạt hủy phòng; khi thả tay thẻ tự động đàn hồi về vị trí gốc qua `withSpring(0)`.
 
 ---
 
-## 🛠️ Công Nghệ Sử Dụng
+## 🛠️ Hệ Sinh Thái Công Nghệ
 
-- **Framework**: [React Native](https://reactnative.dev/) (0.86+) & [Expo](https://expo.dev/) (SDK 57) Managed Workflow
-- **Ngôn ngữ**: [TypeScript](https://www.typescriptlang.org/) (Strict Mode)
-- **Kiến trúc mới (New Architecture)**: Mặc định trên Expo SDK 57 (Hermes Engine, Fabric, TurboModules)
-- **Quản lý vùng an toàn**: `react-native-safe-area-context`
-- **Mã định danh gói (Bundle ID)**: `vn.edu.vku.roombooking`
+- **Framework:** [React Native](https://reactnative.dev/) (0.86+) & [Expo](https://expo.dev/) (SDK 57) Managed Workflow
+- **Ngôn ngữ:** [TypeScript](https://www.typescriptlang.org/) (Strict Mode)
+- **Kiến trúc Native:** New Architecture (Hermes, JSI, Fabric Renderer, TurboModules)
+- **Navigation:** `@react-navigation/native`, `@react-navigation/native-stack`, `@react-navigation/bottom-tabs`
+- **Quản lý State:** `zustand`, `@react-native-async-storage/async-storage`, `@tanstack/react-query`
+- **Animations & Gestures:** `react-native-reanimated`, `react-native-gesture-handler`
+- **Quản lý Vùng an toàn:** `react-native-safe-area-context`
+- **Mã định danh gói (Bundle ID):** `vn.edu.vku.roombooking`
 
 ---
 
-## 📁 Cấu Trúc Thư Mục Dự Án
+## 📁 Cấu Trúc Thư Mục Mã Nguồn
 
 ```text
 Room_Booking/
 ├── app.json                  # Cấu hình dự án Expo (name: RoomBooking, bundle ID, orientation portrait)
+├── babel.config.js           # Cấu hình Babel với plugin Reanimated ở cuối
 ├── package.json              # Khai báo phụ thuộc và kịch bản khởi chạy
-├── tsconfig.json             # Cấu hình TypeScript Strict Mode
-├── App.tsx                   # Điểm khởi chạy gốc với SafeAreaProvider & StatusBar
-├── prd.md                    # Tài liệu đặc tả yêu cầu sản phẩm
+├── tsconfig.json             # TypeScript Strict Mode ("strict": true)
+├── App.tsx                   # Điểm khởi chạy gốc với GestureHandler, SafeAreaProvider, QueryClientProvider, NavigationContainer
+├── REPORT_OUTLINE.md         # Báo cáo kỹ thuật chi tiết theo thang điểm 100% của đồ án
+├── prd_full.md               # Tài liệu đặc tả yêu cầu sản phẩm đầy đủ
 ├── README.md                 # Tài liệu mô tả và hướng dẫn dự án
 └── src/
     ├── types/
-    │   └── room.ts           # Định nghĩa cấu trúc Room & TimeSlot
+    │   └── index.ts          # Định nghĩa kiểu dữ liệu Room, Booking, RoomStatus
     ├── data/
-    │   └── mockRooms.ts      # Bộ dữ liệu 22 phòng học kèm 6 khung giờ chi tiết
+    │   └── mockData.ts       # Bộ dữ liệu 22 phòng học kèm facilities và mô tả chi tiết
+    ├── store/
+    │   └── useBookingStore.ts # Zustand store kết hợp AsyncStorage persist
+    ├── services/
+    │   └── queryClient.ts    # TanStack Query client & custom hook useRooms
+    ├── navigation/
+    │   ├── types.ts          # Khai báo kiểu Route ParamList Type-Safe
+    │   └── RootNavigator.tsx # Cấu hình Stack Navigator lồng Bottom Tabs Navigator
     ├── components/
-    │   ├── Header.tsx        # Thanh tiêu đề thương hiệu & khối thống kê phòng
-    │   ├── SearchBar.tsx     # Thanh tìm kiếm phòng học thời gian thực
-    │   ├── FilterChips.tsx   # Thẻ lọc đa tiêu chí (Trạng thái, Tòa nhà)
-    │   ├── RoomCard.tsx      # Thẻ thông tin phòng với phản hồi chạm opacity 0.7
-    │   ├── BookingModal.tsx  # Cửa sổ chi tiết chọn khung giờ & chống đặt trùng lặp
-    │   └── NotificationModal.tsx # Cửa sổ thông báo kết quả tùy chỉnh
+    │   ├── RoomCard.tsx      # Thẻ phòng bo góc 12, bóng đổ, Reanimated FadeInDown
+    │   ├── SearchBar.tsx     # Thanh tìm kiếm thời gian thực
+    │   ├── FilterChips.tsx   # Dải thẻ lọc danh mục theo tòa nhà
+    │   └── Header.tsx        # Header thương hiệu hệ thống
     └── screens/
-        └── RoomListScreen.tsx # Màn hình danh sách chính bọc SafeAreaView & FlatList
+        ├── BrowseRoomsScreen.tsx       # Màn hình duyệt phòng với FlatList 60fps & Pull-to-refresh
+        ├── RoomDetailsScreen.tsx       # Màn hình chi tiết phòng, bộ chọn ca học & nút bấm co giãn
+        ├── BookingConfirmationScreen.tsx # Modal trượt từ đáy hiển thị vé đặt phòng
+        ├── MyBookingsScreen.tsx        # Quản lý đơn đặt phòng với cử chỉ vuốt để hủy (Swipe-to-Cancel)
+        └── ProfileScreen.tsx           # Thông tin sinh viên & thống kê đặt phòng
 ```
 
 ---
@@ -84,8 +94,8 @@ Room_Booking/
 ## 🚀 Hướng Dẫn Cài Đặt & Khởi Chạy
 
 ### 1. Yêu cầu môi trường
-- Đã cài đặt [Node.js](https://nodejs.org/) (khuyến nghị phiên bản LTS từ v18 trở lên).
-- Thiết bị di động đã cài ứng dụng **Expo Go** (có sẵn trên App Store và Google Play).
+- Đã cài đặt [Node.js](https://nodejs.org/) (phiên bản LTS 18+ hoặc 20+).
+- Thiết bị di động đã cài đặt ứng dụng **Expo Go** (tải miễn phí trên App Store / Google Play).
 
 ### 2. Tải mã nguồn về máy
 ```bash
@@ -103,29 +113,42 @@ npm install
 npx expo start
 ```
 
-### 5. Trải nghiệm trên thiết bị
-- **Thiết bị thật**: Mở ứng dụng **Expo Go** trên điện thoại và quét mã QR hiển thị ở terminal.
-- **Máy ảo Android**: Nhấn phím `a` trong terminal.
-- **Trình duyệt Web**: Nhấn phím `w` trong terminal.
+### 5. Kiểm thử trên thiết bị
+- **Trên điện thoại thật:** Mở ứng dụng **Expo Go** và quét mã QR hiển thị ở màn hình terminal.
+- **Trên máy ảo Android:** Nhấn phím `a` trong terminal.
+- **Trên trình duyệt Web:** Nhấn phím `w` trong terminal.
 
 ---
 
-## 🧪 Kiểm Thử Dự Án
+## 📹 Kịch Bản Video Demo (Thời lượng 2 - 3 phút trên điện thoại thật)
 
-- **Kiểm tra kiểu dữ liệu TypeScript**:
+Để đạt điểm tối đa trong phần trình bày demo, bạn có thể thực hiện theo các mốc thời gian chuẩn hóa sau:
+
+| Mốc thời gian | Nội dung trình diễn & Thao tác | Mục tiêu chứng minh |
+| :--- | :--- | :--- |
+| **0:00 - 0:45** *(UI/UX & Browse)* | 1. Mở app qua Expo Go, quan sát hiệu ứng thẻ phòng xuất hiện so le từ dưới lên (`FadeInDown`).<br>2. Nhập từ khóa `"AI"` hoặc `"K-102"` trên thanh tìm kiếm để lọc phòng tức thì.<br>3. Chạm vào các filter chip (*Building A3, Main Library...*).<br>4. Kéo màn hình từ trên xuống để kích hoạt thao tác Pull-to-refresh (quay spinner nạp dữ liệu từ TanStack Query). | Giao diện chuẩn 60fps, Reanimated hoạt động mượt mà, tìm kiếm và lọc tức thì. |
+| **0:45 - 1:30** *(Navigation & Booking Flow)* | 1. Nhấn vào một thẻ phòng (ví dụ: *Lab A3-101*) để chuyển sang `RoomDetailsScreen`. Nhận xét thanh Bottom Tabs đã tự động ẩn đi.<br>2. Xem ảnh lớn, sức chứa và danh sách tiện ích.<br>3. Bấm vào khung giờ đã có đơn đặt trước (bị gạch ngang, mác `🔒 Đã đặt`) để chứng minh tính năng chống trùng lặp.<br>4. Chạm vào một khung giờ còn trống (ví dụ: `10:00 - 12:00`).<br>5. Bấm nút *"Book This Room"*, quan sát hiệu ứng nút co lại 0.95 rồi bung về 1.0. | Điều hướng Stack lồng Tabs chuẩn mực, giải thuật Conflict Prevention và hiệu ứng nút bấm Spring. |
+| **1:30 - 2:00** *(Modal Confirmation)* | 1. Màn hình `BookingConfirmationScreen` trượt từ đáy màn hình lên dưới dạng Modal.<br>2. Xem mã vé (Booking Pass ID), thông tin phòng, khung giờ và trạng thái `CONFIRMED`.<br>3. Bấm nút *"Xem Danh Sách Đặt Chỗ"* để chuyển thẳng sang Tab `MyBookings`. | Modal presentation chuẩn native, luồng điều hướng liền mạch. |
+| **2:00 - 2:45** *(Gestures & Persistence)* | 1. Tại tab `Lịch Đặt` (`MyBookingsScreen`), quan sát đơn đặt phòng vừa tạo hiển thị ở đầu danh sách.<br>2. Dùng ngón tay vuốt thẻ sang trái vượt quá -120px để kích hoạt cử chỉ **Swipe-to-Cancel** (nền đỏ hiện ra và thẻ tự động đàn hồi về vị trí cũ).<br>3. Trạng thái thẻ chuyển sang `Đã hủy`.<br>4. Thoát hoàn toàn ứng dụng (vuốt tắt hẳn trên điện thoại), sau đó mở lại ứng dụng để chứng minh dữ liệu vẫn còn nguyên vẹn nhờ **AsyncStorage Persistence**. | Gesture Handler v2 chuẩn xác, lưu trữ dữ liệu bền bỉ Client State. |
+
+---
+
+## 🧪 Kết Quả Kiểm Thử Tự Động
+
+- **Kiểm tra kiểu dữ liệu TypeScript Strict Mode:**
   ```bash
   npx tsc --noEmit
   ```
-  *(Kết quả: 0 lỗi, hoàn toàn tương thích Strict Mode)*
+  *(Kết quả: 0 lỗi - Exit Code 0)*
 
-- **Kiểm tra chuẩn cấu hình Expo**:
+- **Kiểm tra cấu hình & tương thích Expo SDK 57:**
   ```bash
   npx expo-doctor
   ```
-  *(Kết quả: 21/21 checks passed)*
+  *(Kết quả: 21/21 checks passed - No issues detected!)*
 
 ---
 
-## 📄 Bản quyền
-Dự án được xây dựng và phát triển phục vụ mục đích học tập và nghiên cứu công nghệ đa nền tảng.
+## 📄 Bản Quyền & Giấy Phép
+Dự án được xây dựng phục vụ học phần Lập trình Đa nền tảng tại VKU.  
 Mã nguồn phát hành theo giấy phép [MIT](LICENSE).

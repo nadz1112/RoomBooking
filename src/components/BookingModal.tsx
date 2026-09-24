@@ -49,8 +49,9 @@ export const BookingModal: React.FC<BookingModalProps> = ({
     onClose();
   };
 
-  const selectedSlot = room.timeSlots.find((s) => s.id === selectedSlotId);
-  const availableSlotsCount = room.timeSlots.filter((s) => !s.isBooked).length;
+  const timeSlots = room.timeSlots || [];
+  const selectedSlot = timeSlots.find((s) => s.id === selectedSlotId);
+  const availableSlotsCount = timeSlots.filter((s) => !s.isBooked).length;
 
   return (
     <Modal
@@ -102,7 +103,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
             <View style={styles.slotHeaderRow}>
               <Text style={styles.sectionTitle}>Chọn ca học trong ngày</Text>
               <Text style={styles.availableBadge}>
-                {availableSlotsCount}/{room.timeSlots.length} ca trống
+                {availableSlotsCount}/{timeSlots.length} ca trống
               </Text>
             </View>
             <Text style={styles.sectionNotice}>
@@ -111,7 +112,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
 
             {/* Danh sách Time Slots */}
             <View style={styles.slotsList}>
-              {room.timeSlots.map((slot, index) => {
+              {timeSlots.map((slot, index) => {
                 const isSelected = selectedSlotId === slot.id;
                 const isConflict = slot.isBooked;
 

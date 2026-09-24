@@ -111,7 +111,8 @@ export const RoomListScreen: React.FC = () => {
           bookedRoomName = room.name;
 
           // Cập nhật trạng thái slot vừa đặt
-          const updatedSlots = room.timeSlots.map((slot) => {
+          const currentSlots = room.timeSlots || [];
+          const updatedSlots = currentSlots.map((slot) => {
             if (slot.id === slotId) {
               bookedSlotTime = slot.timeRange;
               return {
@@ -164,8 +165,8 @@ export const RoomListScreen: React.FC = () => {
   }, []);
 
   const renderItem: ListRenderItem<Room> = useCallback(
-    ({ item }) => {
-      return <RoomCard room={item} onPress={handleOpenBooking} />;
+    ({ item, index }) => {
+      return <RoomCard room={item} index={index} onPress={handleOpenBooking} />;
     },
     [handleOpenBooking]
   );
