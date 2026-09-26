@@ -11,7 +11,7 @@
   1. Lê Xuân Hoài Nam — Mã sinh viên: 23IT175 — Vai trò: Kiến trúc sư Frontend & Quản lý State (Frontend Architecture & State Management) — Đóng góp: 100%
 * **🔗 Đường dẫn Tải file APK:** [Tải trực tiếp RoomBooking.apk (GitHub Release v1.0.0)](https://github.com/nadz1112/RoomBooking/releases/download/v1.0.0/RoomBooking.apk) | [Trang GitHub Releases](https://github.com/nadz1112/RoomBooking/releases) | File cục bộ: [RoomBooking.apk](./RoomBooking.apk)
 * **💻 GitHub Repository:** [https://github.com/nadz1112/RoomBooking.git](https://github.com/nadz1112/RoomBooking.git)
-* **🎥 Video Demo (Kịch bản chi tiết):** Đã tích hợp kịch bản chi tiết 0:00 - 2:45 trong [README.md](./README.md) và sẵn sàng trình chiếu trên thiết bị thực tế qua Expo Go / file APK.
+* **🎥 Video Demo (Kịch bản chi tiết):** [https://youtube.com/shorts/KHXnOK9yr9I?si=JETYhNXUoOf7dHe0](https://youtube.com/shorts/KHXnOK9yr9I?si=JETYhNXUoOf7dHe0) — Đã tích hợp kịch bản chi tiết 0:00 - 2:45 trong [README.md](./README.md) và sẵn sàng trình chiếu trên thiết bị thực tế qua Expo Go / file APK.
 
 ---
 

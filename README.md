@@ -126,7 +126,9 @@ npx expo start
 
 ## 📹 Kịch Bản Video Demo (Thời lượng 2 - 3 phút trên điện thoại thật)
 
-Để đạt điểm tối đa trong phần trình bày demo, bạn có thể thực hiện theo các mốc thời gian chuẩn hóa sau:
+> 🔗 **Xem Video Demo Thực Tế (YouTube Shorts):** [https://youtube.com/shorts/KHXnOK9yr9I?si=JETYhNXUoOf7dHe0](https://youtube.com/shorts/KHXnOK9yr9I?si=JETYhNXUoOf7dHe0)  
+> 
+> Để đạt điểm tối đa trong phần trình bày demo, bạn có thể tham khảo các mốc thời gian chuẩn hóa sau:
 
 | Mốc thời gian | Nội dung trình diễn & Thao tác | Mục tiêu chứng minh |
 | :--- | :--- | :--- |
