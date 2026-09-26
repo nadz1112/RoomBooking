@@ -36,15 +36,15 @@ export const ProfileScreen: React.FC<TabScreenProps<'Profile'>> = () => {
             style={styles.avatar}
           />
           <View style={styles.profileInfo}>
-            <Text style={styles.userName}>Lê Hoàng Nam</Text>
+            <Text style={styles.userName}>Lê Xuân Hoài Nam</Text>
             <Text style={styles.userRole}>Sinh viên Khoa Kỹ Thuật Máy Tính</Text>
-            <Text style={styles.userEmail}>namlh.22it@vku.udn.vn</Text>
+            <Text style={styles.userEmail}>namlxh.23it@vku.udn.vn</Text>
             <View style={styles.badgeRow}>
               <View style={styles.studentIdBadge}>
-                <Text style={styles.studentIdText}>MSSV: 22IT001</Text>
+                <Text style={styles.studentIdText}>MSSV: 23IT175</Text>
               </View>
               <View style={styles.classBadge}>
-                <Text style={styles.classBadgeText}>Khóa 2022 - 2027</Text>
+                <Text style={styles.classBadgeText}>Khóa 2023 - 2028</Text>
               </View>
             </View>
           </View>
