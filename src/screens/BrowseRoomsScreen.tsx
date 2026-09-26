@@ -18,12 +18,13 @@ import { Room } from '../types';
 
 const BUILDING_FILTERS = [
   'Tất cả',
-  'Building A3',
-  'Main Library',
-  'Building V',
-  'Building K',
-  'Innovation Hub',
-  'Administrative Center',
+  'Tòa nhà A3',
+  'Thư Viện Trung Tâm',
+  'Tòa nhà V',
+  'Tòa nhà K',
+  'Trung Tâm ĐMST',
+  'Khu Hành Chính',
+  'Trung Tâm Hội Nghị',
 ];
 
 export const BrowseRoomsScreen: React.FC<TabScreenProps<'BrowseRooms'>> = ({
@@ -83,7 +84,7 @@ export const BrowseRoomsScreen: React.FC<TabScreenProps<'BrowseRooms'>> = ({
   const renderHeader = () => (
     <View style={styles.headerWrapper}>
       <View style={styles.brandContainer}>
-        <Text style={styles.brandSubtitle}>CAMPUS ROOM RESERVATION</Text>
+        <Text style={styles.brandSubtitle}>HỆ THỐNG ĐẶT PHÒNG HỌC & LAB</Text>
         <Text style={styles.brandTitle}>Room Booking</Text>
       </View>
 
@@ -92,7 +93,7 @@ export const BrowseRoomsScreen: React.FC<TabScreenProps<'BrowseRooms'>> = ({
         <Text style={styles.searchIcon}>🔍</Text>
         <TextInput
           style={styles.searchInput}
-          placeholder="Search rooms..."
+          placeholder="Tìm kiếm phòng học, tòa nhà..."
           placeholderTextColor="#94A3B8"
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -152,9 +153,9 @@ export const BrowseRoomsScreen: React.FC<TabScreenProps<'BrowseRooms'>> = ({
 
       {/* Tiêu đề danh sách & số lượng */}
       <View style={styles.sectionHeaderRow}>
-        <Text style={styles.sectionTitle}>Available Rooms & Labs</Text>
+        <Text style={styles.sectionTitle}>Danh Sách Phòng Khả Dụng</Text>
         <Text style={styles.sectionCountBadge}>
-          {filteredRooms.length} rooms
+          {filteredRooms.length} phòng
         </Text>
       </View>
     </View>
@@ -204,12 +205,12 @@ export const BrowseRoomsScreen: React.FC<TabScreenProps<'BrowseRooms'>> = ({
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+      {renderHeader()}
       <FlatList
         data={filteredRooms}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
         ItemSeparatorComponent={renderSeparator}
-        ListHeaderComponent={renderHeader}
         ListEmptyComponent={renderEmptyComponent}
         contentContainerStyle={styles.listContent}
         initialNumToRender={10}
@@ -218,6 +219,8 @@ export const BrowseRoomsScreen: React.FC<TabScreenProps<'BrowseRooms'>> = ({
         showsVerticalScrollIndicator={false}
         refreshing={isLoading}
         onRefresh={refetch}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
       />
     </SafeAreaView>
   );
@@ -230,14 +233,16 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: 16,
+    paddingTop: 8,
     paddingBottom: 32,
     backgroundColor: '#F8FAFC',
     minHeight: '100%',
   },
   headerWrapper: {
     backgroundColor: '#F8FAFC',
+    paddingHorizontal: 16,
     paddingTop: 8,
-    paddingBottom: 12,
+    paddingBottom: 8,
   },
   brandContainer: {
     backgroundColor: '#1E3A5F',

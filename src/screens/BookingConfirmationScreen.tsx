@@ -35,7 +35,7 @@ export const BookingConfirmationScreen: React.FC<
           <Text style={styles.successIcon}>🎉</Text>
         </View>
 
-        <Text style={styles.title}>Booking Confirmed!</Text>
+        <Text style={styles.title}>Đặt Phòng Thành Công!</Text>
         <Text style={styles.subtitle}>
           Yêu cầu đặt phòng của bạn đã được xác nhận thành công trên hệ thống.
         </Text>
@@ -43,9 +43,9 @@ export const BookingConfirmationScreen: React.FC<
         {/* Thẻ Booking Pass */}
         <View style={styles.passCard}>
           <View style={styles.passHeader}>
-            <Text style={styles.passBrand}>VKU ROOM PASS</Text>
+            <Text style={styles.passBrand}>THẺ ĐẶT PHÒNG HỌC</Text>
             <View style={styles.passStatusTag}>
-              <Text style={styles.passStatusText}>CONFIRMED</Text>
+              <Text style={styles.passStatusText}>ĐÃ XÁC NHẬN</Text>
             </View>
           </View>
 
@@ -67,6 +67,13 @@ export const BookingConfirmationScreen: React.FC<
             <View style={styles.passRow}>
               <Text style={styles.passLabel}>Tòa nhà:</Text>
               <Text style={styles.passValue}>{booking?.building || 'Campus VKU'}</Text>
+            </View>
+
+            <View style={styles.passRow}>
+              <Text style={styles.passLabel}>Ngày sử dụng:</Text>
+              <Text style={styles.passValueDateHighlight}>
+                📅 {booking?.date ? booking.date.split('-').reverse().join('/') : 'Hôm nay'}
+              </Text>
             </View>
 
             <View style={styles.passRow}>
@@ -227,6 +234,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     color: '#0284C7',
+  },
+  passValueDateHighlight: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1E3A5F',
   },
   passValueDate: {
     fontSize: 12,

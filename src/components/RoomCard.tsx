@@ -20,7 +20,7 @@ interface RoomCardProps {
 }
 
 export const RoomCard: React.FC<RoomCardProps> = ({ room, index, onPress }) => {
-  const isAvailable = room.status === 'Available';
+  const isAvailable = room.status === 'Available' || room.status === 'Còn trống';
 
   const handlePress = () => {
     onPress(room);
@@ -64,7 +64,7 @@ export const RoomCard: React.FC<RoomCardProps> = ({ room, index, onPress }) => {
                   isAvailable ? styles.badgeTextAvailable : styles.badgeTextOccupied,
                 ]}
               >
-                {isAvailable ? 'Available' : 'Occupied'}
+                {isAvailable ? 'Còn trống' : 'Đang bận'}
               </Text>
             </View>
           </View>
@@ -74,7 +74,7 @@ export const RoomCard: React.FC<RoomCardProps> = ({ room, index, onPress }) => {
               🏢 {room.building}
             </Text>
             <Text style={styles.capacityText}>
-              👥 {room.capacity} seats
+              👥 {room.capacity} chỗ
             </Text>
           </View>
 

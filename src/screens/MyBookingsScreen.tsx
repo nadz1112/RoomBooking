@@ -27,21 +27,24 @@ const SwipeableBookingCard: React.FC<SwipeableBookingCardProps> = ({
   booking,
   onCancel,
 }) => {
+  const [cardWidth, setCardWidth] = React.useState(0);
   const translateX = useSharedValue(0);
   const isCancelled = booking.status === 'cancelled';
 
-  // Pan Gesture với GestureDetector của react-native-gesture-handler v2
+  // Pan Gesture: Cho phép kéo sang phải, yêu cầu vượt quá 70% bề rộng thẻ mới xác nhận hủy
   const panGesture = Gesture.Pan()
     .activeOffsetX([-10, 10])
     .onUpdate((e) => {
       if (isCancelled) return;
-      // Chỉ cho phép kéo sang trái (giá trị <= 0)
-      translateX.value = Math.min(0, e.translationX);
+      // Chỉ cho phép kéo sang phải (giá trị >= 0), giới hạn tối đa theo chiều rộng thẻ
+      const maxDrag = cardWidth > 0 ? cardWidth : 360;
+      translateX.value = Math.min(maxDrag, Math.max(0, e.translationX));
     })
     .onEnd((e) => {
       if (isCancelled) return;
-      // Ngưỡng kích hoạt hủy: khi vuốt sang trái vượt quá -120px
-      if (e.translationX < -120) {
+      // Ngưỡng hủy chính xác: Phải kéo qua phải vượt quá 70% chiều rộng thanh/thẻ
+      const threshold = (cardWidth > 0 ? cardWidth : 360) * 0.7;
+      if (e.translationX >= threshold) {
         runOnJS(onCancel)(booking.id);
       }
       // Tự động đàn hồi về vị trí ban đầu
@@ -55,10 +58,13 @@ const SwipeableBookingCard: React.FC<SwipeableBookingCardProps> = ({
   });
 
   return (
-    <View style={styles.cardContainer}>
-      {/* Lớp nền màu đỏ lộ ra khi vuốt sang trái */}
+    <View
+      style={styles.cardContainer}
+      onLayout={(e) => setCardWidth(e.nativeEvent.layout.width)}
+    >
+      {/* Lớp nền màu đỏ lộ ra khi kéo thẻ sang phải */}
       <View style={styles.hiddenCancelBackground}>
-        <Text style={styles.hiddenCancelText}>🗑️ Vuốt để hủy</Text>
+        <Text style={styles.hiddenCancelText}>🗑️ Kéo qua phải &gt; 70% để hủy</Text>
       </View>
 
       <GestureDetector gesture={panGesture}>
@@ -85,14 +91,19 @@ const SwipeableBookingCard: React.FC<SwipeableBookingCardProps> = ({
                     : styles.statusTextConfirmed,
                 ]}
               >
-                {isCancelled ? 'Đã hủy' : 'Confirmed'}
+                {isCancelled ? 'Đã hủy' : 'Đã xác nhận'}
               </Text>
             </View>
           </View>
 
           <View style={styles.cardBody}>
             <Text style={styles.infoText}>🏢 {booking.building}</Text>
-            <Text style={styles.timeSlotText}>⏰ {booking.timeSlot}</Text>
+            <View style={styles.scheduleRow}>
+              <Text style={styles.scheduleDateText}>
+                📅 {booking.date ? booking.date.split('-').reverse().join('/') : 'Hôm nay'}
+              </Text>
+              <Text style={styles.timeSlotText}>⏰ {booking.timeSlot}</Text>
+            </View>
             <Text style={styles.createdDateText}>
               Đặt lúc: {new Date(booking.createdAt).toLocaleString('vi-VN')}
             </Text>
@@ -100,7 +111,7 @@ const SwipeableBookingCard: React.FC<SwipeableBookingCardProps> = ({
 
           {!isCancelled && (
             <View style={styles.cardFooter}>
-              <Text style={styles.swipeHintText}>👈 Vuốt sang trái để hủy phòng</Text>
+              <Text style={styles.swipeHintText}>👉 Kéo sang phải &gt; 70% để hủy</Text>
               <Pressable
                 onPress={() => onCancel(booking.id)}
                 hitSlop={6}
@@ -109,7 +120,7 @@ const SwipeableBookingCard: React.FC<SwipeableBookingCardProps> = ({
                   pressed && styles.pressed,
                 ]}
               >
-                <Text style={styles.cancelBtnLabel}>Hủy</Text>
+                <Text style={styles.cancelBtnLabel}>Hủy ca</Text>
               </Pressable>
             </View>
           )}
@@ -229,8 +240,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#EF4444',
     borderRadius: 12,
     justifyContent: 'center',
-    alignItems: 'flex-end',
-    paddingRight: 24,
+    alignItems: 'flex-start',
+    paddingLeft: 20,
   },
   hiddenCancelText: {
     color: '#FFFFFF',
@@ -301,11 +312,21 @@ const styles = StyleSheet.create({
     color: '#64748B',
     marginBottom: 4,
   },
+  scheduleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  scheduleDateText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#0284C7',
+  },
   timeSlotText: {
     fontSize: 14,
     fontWeight: '700',
     color: '#1E3A5F',
-    marginBottom: 4,
   },
   createdDateText: {
     fontSize: 11,

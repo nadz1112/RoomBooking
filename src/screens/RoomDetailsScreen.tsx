@@ -25,6 +25,43 @@ const SAMPLE_TIME_SLOTS = [
   '15:00 - 17:00',
 ];
 
+interface DateItem {
+  dateString: string;
+  dayOfWeek: string;
+  dayNumber: number;
+  monthString: string;
+  isToday: boolean;
+  displayFormatted: string;
+}
+
+// Ràng buộc chỉ chọn ngày từ HIỆN TẠI ĐẾN TƯƠNG LAI (14 ngày tới tính từ hôm nay)
+const getUpcomingDates = (daysCount = 14): DateItem[] => {
+  const dates: DateItem[] = [];
+  const today = new Date();
+  const dayNames = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+
+  for (let i = 0; i < daysCount; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const dateString = `${year}-${month}-${day}`;
+
+    dates.push({
+      dateString,
+      dayOfWeek: i === 0 ? 'Hôm nay' : dayNames[d.getDay()],
+      dayNumber: d.getDate(),
+      monthString: `Thg ${d.getMonth() + 1}`,
+      isToday: i === 0,
+      displayFormatted: `${day}/${month}`,
+    });
+  }
+
+  return dates;
+};
+
 export const RoomDetailsScreen: React.FC<RootStackScreenProps<'RoomDetails'>> = ({
   route,
   navigation,
@@ -34,6 +71,10 @@ export const RoomDetailsScreen: React.FC<RootStackScreenProps<'RoomDetails'>> = 
   // Fetch dữ liệu phòng
   const { data: room } = useRoomById(roomId);
 
+  // Danh sách ngày khả dụng từ hiện tại đến tương lai
+  const upcomingDates = useMemo(() => getUpcomingDates(14), []);
+  const [selectedDate, setSelectedDate] = useState<string>(upcomingDates[0].dateString);
+
   // Zustand Store selectors
   const bookings = useBookingStore((state) => state.bookings);
   const addBooking = useBookingStore((state) => state.addBooking);
@@ -41,18 +82,23 @@ export const RoomDetailsScreen: React.FC<RootStackScreenProps<'RoomDetails'>> = 
   // State chọn khung giờ
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
 
-  // Thuật toán Conflict Prevention: Kiểm tra các slot đã có đơn 'confirmed' cho phòng này
+  // Thuật toán Conflict Prevention: Kiểm tra các slot đã có đơn 'confirmed' cho phòng này THEO NGÀY ĐÃ CHỌN
   const bookedSlotsSet = useMemo(() => {
     const set = new Set<string>();
     bookings.forEach((b) => {
-      if (b.roomId === roomId && b.status === 'confirmed') {
+      if (b.roomId === roomId && b.status === 'confirmed' && b.date === selectedDate) {
         set.add(b.timeSlot);
       }
     });
     return set;
-  }, [bookings, roomId]);
+  }, [bookings, roomId, selectedDate]);
 
-  // Reanimated Animation cho nút bấm "Book This Room"
+  const handleSelectDate = (dateStr: string) => {
+    setSelectedDate(dateStr);
+    setSelectedSlot(null); // Reset ca học đã chọn khi đổi ngày để đảm bảo tính hợp lệ
+  };
+
+  // Reanimated Animation cho nút bấm "Xác Nhận Đặt Phòng"
   const buttonScale = useSharedValue(1);
 
   const animatedButtonStyle = useAnimatedStyle(() => {
@@ -69,6 +115,11 @@ export const RoomDetailsScreen: React.FC<RootStackScreenProps<'RoomDetails'>> = 
     buttonScale.value = withSpring(1);
   };
 
+  const selectedDateObj = useMemo(
+    () => upcomingDates.find((d) => d.dateString === selectedDate) || upcomingDates[0],
+    [upcomingDates, selectedDate]
+  );
+
   const handleBookRoom = () => {
     if (!selectedSlot) return;
 
@@ -77,6 +128,7 @@ export const RoomDetailsScreen: React.FC<RootStackScreenProps<'RoomDetails'>> = 
       roomId: roomId,
       roomName: room?.name || roomName,
       building: room?.building || 'Campus VKU',
+      date: selectedDate,
       timeSlot: selectedSlot,
       status: 'confirmed',
       createdAt: new Date().toISOString(),
@@ -113,7 +165,7 @@ export const RoomDetailsScreen: React.FC<RootStackScreenProps<'RoomDetails'>> = 
           />
           <View style={styles.statusBadge}>
             <Text style={styles.statusBadgeText}>
-              {room?.status === 'Available' ? '🟢 Sẵn sàng' : '🔴 Đang bận'}
+              {room?.status === 'Available' || room?.status === 'Còn trống' ? '🟢 Sẵn sàng' : '🔴 Đang bận'}
             </Text>
           </View>
         </View>
@@ -123,7 +175,7 @@ export const RoomDetailsScreen: React.FC<RootStackScreenProps<'RoomDetails'>> = 
           <Text style={styles.roomName}>{room?.name || roomName}</Text>
           <View style={styles.metaRow}>
             <Text style={styles.buildingText}>🏢 {room?.building}</Text>
-            <Text style={styles.capacityText}>👥 {room?.capacity} seats</Text>
+            <Text style={styles.capacityText}>👥 {room?.capacity} chỗ ngồi</Text>
           </View>
 
           {room?.description && (
@@ -148,12 +200,76 @@ export const RoomDetailsScreen: React.FC<RootStackScreenProps<'RoomDetails'>> = 
             </View>
           )}
 
+          {/* Bộ chọn Ngày học (Date Selector) - Ràng buộc từ hiện tại đến tương lai */}
+          <View style={styles.dateSection}>
+            <View style={styles.dateHeaderRow}>
+              <Text style={styles.sectionHeader}>1. Chọn Ngày Sử Dụng</Text>
+              <View style={styles.constraintBadge}>
+                <Text style={styles.constraintBadgeText}>Hôm nay → Tương lai</Text>
+              </View>
+            </View>
+            <Text style={styles.sectionNotice}>
+              * Hệ thống khóa các ngày quá khứ, chỉ cho phép đặt lịch từ hôm nay trở đi.
+            </Text>
+
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.dateScrollContainer}
+            >
+              {upcomingDates.map((item) => {
+                const isSelected = selectedDate === item.dateString;
+                return (
+                  <Pressable
+                    key={item.dateString}
+                    onPress={() => handleSelectDate(item.dateString)}
+                    hitSlop={6}
+                    style={({ pressed }) => [
+                      styles.datePill,
+                      isSelected ? styles.datePillSelected : styles.datePillUnselected,
+                      pressed && styles.pressed,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.dateDayOfWeek,
+                        isSelected && styles.dateDayOfWeekSelected,
+                        item.isToday && !isSelected && styles.dateDayTodayText,
+                      ]}
+                    >
+                      {item.dayOfWeek}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.dateDayNumber,
+                        isSelected && styles.dateDayNumberSelected,
+                      ]}
+                    >
+                      {item.dayNumber}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.dateMonth,
+                        isSelected && styles.dateMonthSelected,
+                      ]}
+                    >
+                      {item.monthString}
+                    </Text>
+                    {isSelected && <View style={styles.dateSelectedDot} />}
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+          </View>
+
           {/* Bộ chọn khung giờ (Time-slot Selector) */}
           <View style={styles.slotsSection}>
             <View style={styles.slotsHeaderRow}>
-              <Text style={styles.sectionHeader}>Chọn Khung Giờ Học</Text>
+              <Text style={styles.sectionHeader}>
+                2. Chọn Ca Học ({selectedDateObj.displayFormatted})
+              </Text>
               <Text style={styles.conflictNotice}>
-                * Khung giờ đã đặt sẽ bị khóa
+                * Ca đã đặt sẽ bị khóa
               </Text>
             </View>
 
@@ -215,7 +331,7 @@ export const RoomDetailsScreen: React.FC<RootStackScreenProps<'RoomDetails'>> = 
         </View>
       </ScrollView>
 
-      {/* Footer chứa nút bấm hoạt họa Reanimated "Book This Room" */}
+      {/* Footer chứa nút bấm hoạt họa Reanimated */}
       <View style={styles.footerContainer}>
         <Animated.View style={[styles.animatedButtonWrapper, animatedButtonStyle]}>
           <Pressable
@@ -235,7 +351,9 @@ export const RoomDetailsScreen: React.FC<RootStackScreenProps<'RoomDetails'>> = 
                 isButtonDisabled && styles.bookButtonTextDisabled,
               ]}
             >
-              {selectedSlot ? `Book This Room (${selectedSlot})` : 'Select a Time Slot'}
+              {selectedSlot
+                ? `Đặt Phòng (${selectedDateObj.displayFormatted} • ${selectedSlot})`
+                : 'Vui Lòng Chọn Khung Giờ'}
             </Text>
           </Pressable>
         </Animated.View>
@@ -358,6 +476,104 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#334155',
     fontWeight: '500',
+  },
+  dateSection: {
+    marginBottom: 20,
+    paddingTop: 4,
+  },
+  dateHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  constraintBadge: {
+    backgroundColor: '#DCFCE7',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#86EFAC',
+  },
+  constraintBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#15803D',
+  },
+  sectionNotice: {
+    fontSize: 11,
+    color: '#64748B',
+    marginBottom: 12,
+    fontStyle: 'italic',
+  },
+  dateScrollContainer: {
+    paddingVertical: 4,
+    paddingRight: 10,
+  },
+  datePill: {
+    width: 66,
+    height: 82,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+    borderWidth: 1.5,
+    position: 'relative',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  datePillSelected: {
+    backgroundColor: '#1E3A5F',
+    borderColor: '#1E3A5F',
+    shadowColor: '#1E3A5F',
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  datePillUnselected: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#E2E8F0',
+  },
+  dateDayOfWeek: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#64748B',
+    marginBottom: 2,
+  },
+  dateDayOfWeekSelected: {
+    color: '#93C5FD',
+  },
+  dateDayTodayText: {
+    color: '#0284C7',
+    fontWeight: '800',
+  },
+  dateDayNumber: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  dateDayNumberSelected: {
+    color: '#FFFFFF',
+  },
+  dateMonth: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#94A3B8',
+    marginTop: 2,
+  },
+  dateMonthSelected: {
+    color: '#E0F2FE',
+  },
+  dateSelectedDot: {
+    position: 'absolute',
+    bottom: 5,
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#38BDF8',
   },
   slotsSection: {
     marginTop: 4,

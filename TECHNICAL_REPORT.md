@@ -9,7 +9,7 @@
 ## 1. GENERAL INFORMATION & DELIVERABLE LINKS
 * **Thành viên nhóm thực hiện:**
   1. Lê Xuân Hoài Nam — Mã sinh viên: 23IT175 — Vai trò: Kiến trúc sư Frontend & Quản lý State (Frontend Architecture & State Management) — Đóng góp: 100%
-* **🔗 Đường dẫn Tải file APK:** [Tải file RoomBooking.apk (Cục bộ hoặc GitHub Release)](./RoomBooking.apk)
+* **🔗 Đường dẫn Tải file APK:** [Tải trực tiếp RoomBooking.apk (GitHub Release v1.0.0)](https://github.com/nadz1112/RoomBooking/releases/download/v1.0.0/RoomBooking.apk) | [Trang GitHub Releases](https://github.com/nadz1112/RoomBooking/releases) | File cục bộ: [RoomBooking.apk](./RoomBooking.apk)
 * **💻 GitHub Repository:** [https://github.com/nadz1112/RoomBooking.git](https://github.com/nadz1112/RoomBooking.git)
 * **🎥 Video Demo (Kịch bản chi tiết):** Đã tích hợp kịch bản chi tiết 0:00 - 2:45 trong [README.md](./README.md) và sẵn sàng trình chiếu trên thiết bị thực tế qua Expo Go / file APK.
 
@@ -20,14 +20,15 @@
 | # | Tính năng Yêu cầu | Trạng thái | Chi tiết Triển khai & Mức độ Hoàn thành |
 |:---:|---|:---:|---|
 | 1 | **Kiến trúc Điều hướng Phân cấp (Nesting Navigators Type-Safe)** | ✅ Hoàn thành | Kết hợp `RootStack` và `BottomTabs` (3 Tabs: Duyệt Phòng, Lịch Đặt, Hồ Sơ). Tự động ẩn thanh Tab Bar khi vào `RoomDetails`, mở màn hình `BookingConfirmation` dưới dạng Modal native trượt từ đáy. Định kiểu chặt chẽ bằng TypeScript. |
-| 2 | **Duyệt & Tìm kiếm Phòng học (Real-time Search & Filter Chips)** | ✅ Hoàn thành | Thanh tìm kiếm tức thì theo tên phòng và tòa nhà. Bộ thẻ lọc danh mục (Filter Chips) theo khu vực (Building A3, Main Library, Building V, Building K, Innovation Hub...). Cung cấp dữ liệu mẫu gồm 22 phòng học/lab phong phú kèm tiện ích. |
+| 2 | **Duyệt & Tìm kiếm Phòng học (Real-time Search & Filter Chips)** | ✅ Hoàn thành | Thanh tìm kiếm tức thì theo tên phòng và tòa nhà, xử lý tách biệt khỏi danh sách cuộn giúp giữ focus bàn phím liên tục khi gõ ký tự (không bị ẩn bàn phím). Bộ thẻ lọc danh mục 100% tiếng Việt (Tòa nhà A3, Thư Viện Trung Tâm, Tòa nhà V, Tòa nhà K, Trung Tâm ĐMST...). Cung cấp dữ liệu mẫu 22 phòng học/lab chuẩn VKU. |
 | 3 | **Hiển thị Danh sách Mượt mà 60fps (FlatList Optimization)** | ✅ Hoàn thành | Cấu hình tối ưu bộ đệm `initialNumToRender={10}`, `maxToRenderPerBatch={5}`, `windowSize={5}`, `keyExtractor`. Gán cứng kích thước ảnh chống giật layout (layout shift). Tích hợp kéo để làm mới (Pull-to-refresh). |
 | 4 | **Quản lý Server Cache (TanStack React Query)** | ✅ Hoàn thành | Tách biệt hoàn toàn Server State: `QueryClient` với `staleTime: 5 phút`, `gcTime: 10 phút`, `retry: 2`. Custom hook `useRooms` giả lập độ trễ 400ms để kiểm thử spinner nạp dữ liệu và phản hồi mạng. |
-| 5 | **Bộ chọn Khung giờ & Chống Đặt Trùng Lặp (Conflict Prevention)** | ✅ Hoàn thành | Cung cấp 4 khung giờ chuẩn trong ngày. Thuật toán tự động tra cứu danh sách đơn đã xác nhận (`confirmed`) trong Zustand; nếu phát hiện trùng lịch sẽ lập tức vô hiệu hóa (`disabled`), gạch ngang và gắn nhãn `🔒 Đã đặt`. |
-| 6 | **Hiệu ứng Hoạt họa trên UI Thread (Reanimated 3 Worklets)** | ✅ Hoàn thành | Thẻ phòng xuất hiện so le mượt mà bằng `FadeInDown.delay(index * 80).springify()`. Nút bấm "Book This Room" phản hồi cử chỉ bấm co giãn đàn hồi tự nhiên bằng `useSharedValue` và `withSpring` (co về `0.95`, bung về `1.0`). |
-| 7 | **Lưu trữ Cục bộ Bền vững (Zustand + AsyncStorage Persistence)** | ✅ Hoàn thành | Quản lý Client State bằng Zustand với middleware `persist` và `createJSONStorage(() => AsyncStorage)` (key `'vku-booking-storage'`). Dữ liệu đơn đặt phòng được bảo toàn trọn vẹn qua các lần tắt/mở lại ứng dụng. |
-| 8 | **Cử chỉ Vuốt để Hủy Phòng (Swipe-to-Cancel Pan Gesture)** | ✅ Hoàn thành | Tích hợp `react-native-gesture-handler` (`Gesture.Pan()`). Khi vuốt thẻ sang trái vượt ngưỡng `-120px`, hệ thống gọi hàm `cancelBooking` an toàn qua `runOnJS`, thẻ tự động đàn hồi về vị trí cũ bằng `withSpring(0)`. |
+| 5 | **Bộ chọn Ngày (Hôm nay → Tương lai) & Ca học Chống Trùng Lặp (Conflict Prevention)** | ✅ Hoàn thành | Tích hợp dải chọn ngày học cuộn ngang (14 ngày tới). Ràng buộc chặt chẽ chỉ cho phép chọn từ Hôm nay đến Tương lai (khóa hoàn toàn ngày quá khứ). Giải thuật Conflict Prevention kiểm tra đa chiều theo cặp `(Phòng + Ngày + Ca học)`; ca đã được người khác đặt trong ngày đó sẽ lập tức bị khóa `🔒 Đã đặt`. |
+| 6 | **Hiệu ứng Hoạt họa trên UI Thread (Reanimated 3 Worklets)** | ✅ Hoàn thành | Thẻ phòng xuất hiện so le mượt mà bằng `FadeInDown.delay(index * 80).springify()`. Nút bấm "Xác Nhận Đặt Phòng" phản hồi cử chỉ bấm co giãn đàn hồi tự nhiên bằng `useSharedValue` và `withSpring` (co về `0.95`, bung về `1.0`). |
+| 7 | **Lưu trữ Cục bộ Bền vững (Zustand + AsyncStorage Persistence)** | ✅ Hoàn thành | Quản lý Client State bằng Zustand với middleware `persist` và `createJSONStorage(() => AsyncStorage)` (key `'vku-booking-storage'`). Dữ liệu đơn đặt phòng và hồ sơ cá nhân được bảo toàn trọn vẹn qua các lần tắt/mở lại ứng dụng. |
+| 8 | **Cử chỉ Vuốt để Hủy Phòng (Swipe-to-Cancel Pan Gesture > 70%)** | ✅ Hoàn thành | Tích hợp `react-native-gesture-handler` (`Gesture.Pan()`). Người dùng kéo thẻ sang phải vượt quá 70% bề rộng (`> 70% cardWidth`) mới kích hoạt hủy phòng; nếu dưới 70% thẻ tự động bung về vị trí cũ bằng `withSpring(0)`. |
 | 9 | **Bảo vệ Vùng An Toàn & Styling Chuẩn Native** | ✅ Hoàn thành | 100% style viết qua `StyleSheet.create()`, không dùng inline style để tránh áp lực thu gom rác (GC pressure). Xử lý an toàn với tai thỏ và Dynamic Island bằng `react-native-safe-area-context`. Không dùng thẻ HTML DOM. |
+| 10 | **Hồ Sơ Cá Nhân & Cập Nhật Thông Tin / Ảnh Đại Diện** | ✅ Hoàn thành | Cho phép người dùng chỉnh sửa Họ tên, MSSV, Email, Khoa đào tạo, Số điện thoại và trực tiếp chọn ảnh đại diện từ bộ avatar sinh viên hoặc nhập link ảnh trực tuyến. Tự động lưu trữ đồng bộ vào Zustand + AsyncStorage. |
 
 ---
 

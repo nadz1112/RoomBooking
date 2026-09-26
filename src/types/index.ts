@@ -24,7 +24,20 @@ export interface Booking {
   roomId: string;
   roomName: string;
   building: string;
+  date: string;
   timeSlot: string;
   status: 'confirmed' | 'cancelled';
   createdAt: string;
 }
+
+export interface UserProfile {
+  name: string;
+  studentId: string;
+  email: string;
+  role: string;
+  cohort: string;
+  phone: string;
+  department: string;
+  avatarUrl: string;
+}
+

@@ -2,7 +2,7 @@
 **Học phần:** Lập trình Đa nền tảng (Cross-Platform Mobile Development)  
 **Trường:** Đại học Công nghệ Thông tin và Truyền thông Việt - Hàn (VKU)  
 **Đồ án:** Mini-Project 2 (Full Implementation)  
-**Sinh viên thực hiện:** Lê Hoàng Nam - MSSV: 22IT001  
+**Sinh viên thực hiện:** Lê Xuân Hoài Nam - MSSV: 23IT175  
 
 ---
 
